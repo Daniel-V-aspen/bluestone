@@ -41,6 +41,16 @@ router.get('/ui/operation', async function (req, res) {
     res.json(ui.operation.spy)
 
 })
+router.get('/operation-backend/:key', async function (req, res) {
+    /**@type {UI} */
+    let ui = req.app.locals.ui
+    let data = ui.operation.backend[req.params.key]
+    try{
+        res.json(data)
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
 module.exports = router;

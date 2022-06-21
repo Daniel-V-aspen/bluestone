@@ -12,6 +12,10 @@ module.exports = {
                 text_input_first_name: 'happy_form_first_name',
                 text_input_last_name: 'happy_form_last_name',
                 button_submit_form: 'happy_form_submit'
+            },
+            bluestone: {
+                btn_resume: '//a[@href=\'?btnCancel\']',
+                btn_operation: '//a[@href=\'/spy\']'
             }
         }
     }

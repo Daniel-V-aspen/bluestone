@@ -51,6 +51,23 @@ exports.Locator = {
             locator: ['//label[@for=\'currentArgument_0\']'],
             screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
             displayName: 'Selector'
+        },
+        btn_Cancel: {
+            locator: ['//div//a[@href=\'?btnCancel\']'],
+            screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
+            displayName: 'Selector'
+        },
+        btn_WorkFlow: {
+            locator: ['//div//a[@href=\'/workflow\']'],
+            screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
+            displayName: 'Selector'
+        }
+    },
+    Workflow: {
+        btn_EditStep1: {
+            locator: ['//div//a[@href=\'?EDIT_WRKFLOW=1\']'],
+            screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
+            displayName: 'Selector'
         }
     }
 }

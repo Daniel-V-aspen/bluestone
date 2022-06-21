@@ -10,6 +10,7 @@ let fs = require('fs').promises
 const fsCb = require('fs')
 const path = require('path')
 const assert = require('assert')
+const { background } = require('jimp')
 const locator = puppeteerSupport.Locator.Operation
 describe('Smoke Test - Operation Page', () => {
     const suite = this;
@@ -77,7 +78,7 @@ describe('Smoke Test - Operation Page', () => {
 
     })
     it('should change selector in the backend once selector value is changed in the bluestone console', async function () {
-        this.timeout(999999)
+        this.timeout(39999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -102,8 +103,8 @@ describe('Smoke Test - Operation Page', () => {
 
     })
 
-    it('should change dropdown menu in the backend once selector value is changed in the bluestone console', async function () {
-        this.timeout(999990)
+    it('UI Operation, Smoke test add step happy path', async function () {
+        this.timeout(39999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -145,11 +146,11 @@ describe('Smoke Test - Operation Page', () => {
         let step = await bluestoneBackend.getSteps()
 
         assert.deepEqual(step.data[step.data.length-1].command, 'testTextEqual', 'The testTextEqual step was not added')
-        assert.deepEqual(step.data[step.data.length-1].functionAst.params[2].pugType, 'Test', `The Argument 0 must be added in the step`)
+        //assert.deepEqual(step.data[step.data.length-1].functionAst.params[2].pugType, 'Test', `The Argument 0 must be added in the step`)
     })
 
     it('UI Operation Spy Current Group should change accourding with the selected group', async function () {
-        this.timeout(99999)
+        this.timeout(39999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -177,7 +178,7 @@ describe('Smoke Test - Operation Page', () => {
     })
 
     it('UI Operation Spy Current Operation should change accourding with the selected operation', async function () {
-        this.timeout(99999)
+        this.timeout(39999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -210,8 +211,8 @@ describe('Smoke Test - Operation Page', () => {
         }
     })
 
-    it('UI New options', async function () {
-        this.timeout(99999)
+    it('UI Operation Add step without target', async function () {
+        this.timeout(999999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -224,20 +225,171 @@ describe('Smoke Test - Operation Page', () => {
         const browser = await puppeteer.launch(puppeteerSupport.config);
         const page = await browser.newPage();
         await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
-        //await bluestoneFunc.change.func(page, puppeteerSupport.Locator.Operation.DropDnMenu1, 'Verify')
+
+        await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['txtSelector'], 21467);
+        await bluestoneFunc.change.func(page, puppeteerSupport.Locator.Operation['txtSelector'], '')
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+
         
-        let operationGroup = await bluestoneBackend.getOperationGroup()
-        let operationLst = Object.keys(operationGroup)
+    })
+
+    //Workflows Add
+    //Add step without target
+    //Add step without operation group
+    //Add step without operation
+    //Add step without argument
+
+    //Workflows Run
+    //Run step without target
+    //Run step without operation group
+    //Run step without operation
+    //Run step without argument
+
+    //Run Step Fail
+    //Run Step pass
+
+    it('UI Operation stop recording and continue recording when press cancel btn', async function () {
+        this.timeout(999999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+        let isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, true, 'Blustone should be recording')
+
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+        
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, false, 'Blustone shouldnt be recording')
+        
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation.btn_Cancel)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, true, 'Blustone should be recording')
+        //Validate come back to happy path page
+    })
 
 
-        let group = operationLst[0]
-        await siteBackend.sendSpy('currentGroup',group)
+    it('UI Operation test', async function () {
+        this.timeout(999999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+        let isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, true, 'Blustone should be recording')
+
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
         await new Promise(resolve => setTimeout(resolve, 500))
 
 
-        let operation = operationGroup[group].operations[0].name
-        await siteBackend.sendSpy('currentOperation',operation)
+
+
+
+
+     
+        
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, false, 'Blustone shouldnt be recording')
+        
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation.btn_Cancel)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        isRecording = await bluestoneBackend.getOperationKey('isRecording')
+        assert.deepEqual(isRecording, true, 'Blustone should be recording')
+        //Validate come back to happy path page
+    })
+
+    it('UI Workflow smoke test edit step', async function () {
+        this.timeout(15000)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
         await new Promise(resolve => setTimeout(resolve, 500))
+        //Open Operation
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        //Go to Workflow
+        let steps = await bluestoneBackend.getSteps()
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation.btn_WorkFlow)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        //Edit step 1
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Workflow.btn_EditStep1)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        //Verify data step 1
+        let userSelection = await bluestoneBackend.getUserSelection()
+        let operationData = await bluestoneBackend.getBackendOperation()
+
+        assert.deepEqual(userSelection['currentOperation'], steps.data[1].command, `The current operation was not selected in UI Workflow`)
+        assert.deepEqual(operationData.data.currentSelector, steps.data[1].target, 'The selector value in Operation doesnt match with the value in step')
+
+        //Change Step 1
+        await siteBackend.sendSpy('currentGroup','assert')
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.sendSpy('currentOperation','testTextEqual')
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.sendSpy('btnAddStep','')
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Verify Step was added
+        steps = await bluestoneBackend.getSteps()
+        assert.deepEqual(steps.data[steps.data.length-1].command, 'testTextEqual', 'The testTextEqual step was not added')
+
 
     })
 })

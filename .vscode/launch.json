@@ -26,7 +26,7 @@
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "node",
-      "args": ["start", "../bluestone-batch-release-manager", "--port", "3601"]
+      "args": ["start", "C:\\Users\\VELASQUD\\Desktop\\Git\\apm-insight-bluestone", "--port", "3601"]
     },
     {
       "name": "Launch Command line for apm-insight-bluestone",

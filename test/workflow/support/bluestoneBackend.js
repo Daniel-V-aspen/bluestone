@@ -8,6 +8,7 @@ class TestSite {
         this.app = null
         process.env.port = this.port
         this.operationUrl = `${this.url}/spy`
+        this.workflowUrl = `${this.url}/workflow`
     }
 
     async launchApp() {
@@ -120,6 +121,15 @@ class TestSite {
     async getOperationGroup(){
         try {
             let res = await axios.get(`${this.url}/diagnostics/operationGroup`)
+            let currentData = JSON.parse(res.data)
+            return currentData
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    async getOperationKey(key){
+        try {
+            let res = await axios.get(`${this.url}/diagnostics/operation-backend/${key}`)
             let currentData = JSON.parse(res.data)
             return currentData
         } catch (error) {
