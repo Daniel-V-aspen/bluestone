@@ -10,6 +10,7 @@ let fs = require('fs').promises
 const fsCb = require('fs')
 const path = require('path')
 const assert = require('assert')
+const locator = puppeteerSupport.Locator.Operation
 describe('Smoke Test - Operation Page', () => {
     const suite = this;
     beforeEach(async function () {
@@ -60,9 +61,8 @@ describe('Smoke Test - Operation Page', () => {
 
         });
     })
-
-    it('should change selector in the backend once selector value is changed in the bluestone console', async function () {
-        this.timeout(99999)
+    it('should launch bluestone test environment', async function () {
+        this.timeout(999999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -72,12 +72,31 @@ describe('Smoke Test - Operation Page', () => {
         await new Promise(resolve => setTimeout(resolve, 500))
         await siteBackend.callBluestoneTab(happyPathPage.header)
 
+        await new Promise(resolve => setTimeout(resolve, 999999))
+
+
+    })
+    it('should change selector in the backend once selector value is changed in the bluestone console', async function () {
+        this.timeout(999999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+        // await new Promise(resolve => setTimeout(resolve, 999999))
+
         const browser = await puppeteer.launch(puppeteerSupport.config);
         const page = await browser.newPage();
         await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
-        await bluestoneFunc.change.func(page, puppeteerSupport.Locator.Operation.txtSelector, '5566')
-        await bluestoneFunc.keydown.func(page, 'Enter')
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['First Dropdown'], 21467);
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation['First Dropdown']);
+        await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['Verify Button'], 3000);
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation['Verify Button']);
+
+        await new Promise(resolve => setTimeout(resolve, 1500))
         let data = await bluestoneBackend.getBackendOperation()
         assert.deepEqual(data.data.currentSelector, '5566', 'The selector value does not change')
 
