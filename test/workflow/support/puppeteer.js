@@ -57,6 +57,11 @@ exports.Locator = {
             screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
             displayName: 'Selector'
         },
+        btn_Run: {
+            locator: ['//div//a[@href=\'?btnRun\']'],
+            screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',
+            displayName: 'Selector'
+        },
         btn_WorkFlow: {
             locator: ['//div//a[@href=\'/workflow\']'],
             screenshot: 'componentPic/Label_Batch_Genealogy___Batch_Information.png',

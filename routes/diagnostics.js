@@ -51,6 +51,21 @@ router.get('/operation-backend/:key', async function (req, res) {
         console.log(error)
     }
 })
+router.get('/spy-validation', async function (req, res) {
+    /**@type {UI} */
+    let ui = req.app.locals.ui
+    res.json(JSON.stringify(ui.operation.spy.validation))
+})
+router.get('/spy/:key', async function (req, res) {
+    /**@type {UI} */
+    let ui = req.app.locals.ui
+    let data = ui.operation.spy[req.params.key]
+    try{
+        res.json(data)
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
 module.exports = router;

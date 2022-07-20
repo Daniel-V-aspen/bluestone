@@ -1,4 +1,5 @@
 const axios = require('axios').default
+const { json } = require('express')
 const testConfig = require('../testConfig')
 const app = require('../../site/app').server
 class TestSite {
@@ -68,6 +69,21 @@ class TestSite {
         let res = await axios.get(`http://localhost:${testConfig.bluestone.port}/spy?${param}=${value}`)
         return res
     }
+    async sendSpy2(params) {
+        let paramsStr = ''
+        try
+        {
+            for(let key in params)
+                paramsStr += `${key}=${params.key}&`
+            paramsStr = '?' + paramsStr.substring(0, paramsStr.length-1)
+        } catch (error){
+            
+        }
+        let res = await axios.get(`http://localhost:${testConfig.bluestone.port}/spy?${params}`)
+        return res
+    }
+    
+
     async sendWorkflow(param, value) {
         let res = await axios.get(`http://localhost:${testConfig.bluestone.port}/workflow?${param}=${value}`)
         return res

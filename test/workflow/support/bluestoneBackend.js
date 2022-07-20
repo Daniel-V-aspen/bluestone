@@ -136,5 +136,24 @@ class TestSite {
             console.log(error)
         }
     }
+    async getSpyValidation(){
+        try {
+            let res = await axios.get(`${this.url}/diagnostics/spy-validation`)
+            let currentData = JSON.parse(res.data)
+            return currentData
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    async getSpyKey(key){
+        try {
+            let res = await axios.get(`${this.url}/diagnostics/spy/${key}`)
+            // let currentData = JSON.parse(res.data)
+            return res.data
+        } catch (error) {
+            console.log(error)
+            
+        }
+    }
 }
 module.exports = TestSite

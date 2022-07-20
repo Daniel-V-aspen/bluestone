@@ -103,7 +103,7 @@ describe('Smoke Test - Operation Page', () => {
 
     })
 
-    it('UI Operation, Smoke test add step happy path', async function () {
+    it('UI Operation, Smoke test add step happy path change argument', async function () {
         this.timeout(39999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
@@ -228,29 +228,187 @@ describe('Smoke Test - Operation Page', () => {
 
         await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['txtSelector'], 21467);
         await bluestoneFunc.change.func(page, puppeteerSupport.Locator.Operation['txtSelector'], '')
+        await bluestoneFunc.keydown.func(page,'Enter')
 
         await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
+        let data = await bluestoneBackend.getBackendOperation()
+
+        //Send Group 0
+        let operationGroup = await bluestoneBackend.getOperationGroup()
+        let operationLst = Object.keys(operationGroup)
+        await siteBackend.sendSpy('currentGroup',operationLst[0])
         await new Promise(resolve => setTimeout(resolve, 500))
 
+        //Send Group 0 Operation 0
+        let operation = operationGroup[operationLst[0]].operations[0].name
+        await siteBackend.sendSpy('currentOperation',operation)
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Add step
+        await siteBackend.sendSpy('btnAddStep','')
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Maybe should be a message that there is no target, right now there is no validation
+
+    })
+
+    it('UI Operation Add step without operation group', async function () {
+        this.timeout(13999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Add step
+        await siteBackend.sendSpy('btnAddStep','')
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        let validation = await bluestoneBackend.getSpyKey('validation')
         
+        await new Promise(resolve => setTimeout(resolve, 500))
+        assert.deepEqual(validation.btnAddStep,'Please input group info', 'Error related with the operation missing')
+    })
+
+    it('UI Operation Add step without operation', async function () {
+        this.timeout(19999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+    
+        let operationGroup = await bluestoneBackend.getOperationGroup()
+        let operationLst = Object.keys(operationGroup)
+        for (let i = 0; i< operationLst.length; i++)
+        {
+            let group = operationLst[i]
+            await siteBackend.sendSpy('currentGroup',group)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            let userSelection = await bluestoneBackend.getUserSelection()
+            //Add step
+            await siteBackend.sendSpy('btnAddStep','')
+            await new Promise(resolve => setTimeout(resolve, 500))
+
+            let validation = await bluestoneBackend.getSpyKey('validation')
+
+            assert.deepEqual(validation.btnAddStep,'Please input operation info', 'Error related with the operation missing')
+        }
+    })
+
+    it('UI Operation Add step without argument (No validation)', async function () {
+        this.timeout(999999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Send Operation Group
+        let operationGroup = await bluestoneBackend.getOperationGroup()
+        let operationLst = Object.keys(operationGroup)
+        let group = operationLst[0]
+        await siteBackend.sendSpy('currentGroup',group)
+
+        //Send Operation
+        let operation = operationGroup[group].operations[0].name
+        await siteBackend.sendSpy('currentOperation',operation)
+
+        await siteBackend.sendSpy2({'currentArgument' : '', 'currentArgumentIndex' : 0})
+
+        //Add step
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.sendSpy('btnAddStep','')
     })
 
     //Workflows Add
-    //Add step without target
-    //Add step without operation group
-    //Add step without operation
-    //Add step without argument
+    //Add step without target .- not validation
+    //Add step without operation group .- Done
+    //Add step without operation .- Done
+    //Add step without argument .- No Validation
 
+
+
+    it('UI Operation Run step happy Path', async function () {
+        this.timeout(999999)
+        let happyPathPage = testConfig.testSite.page.happypath
+        await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
+        await siteBackend.sendOperation('click', happyPathPage.header)
+        await siteBackend.sendOperation('change', happyPathPage.text_input_first_name, 'Wix')
+        await siteBackend.sendOperation('change', happyPathPage.text_input_last_name, 'Woo')
+        await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await siteBackend.callBluestoneTab(happyPathPage.header)
+
+        const browser = await puppeteer.launch(puppeteerSupport.config);
+        const page = await browser.newPage();
+        await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        //Send Operation Group
+        let operationGroup = await bluestoneBackend.getOperationGroup()
+        let operationLst = Object.keys(operationGroup)
+        let group = operationLst[0]
+        await siteBackend.sendSpy('currentGroup',group)
+
+        //Send Operation
+        let operation = operationGroup[group].operations[0].name
+        await siteBackend.sendSpy('currentOperation',operation)
+
+        //Run step
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation.btn_Run)
+        
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 500))
+    })
     //Workflows Run
     //Run step without target
     //Run step without operation group
