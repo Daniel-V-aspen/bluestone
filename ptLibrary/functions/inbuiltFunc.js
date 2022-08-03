@@ -63,6 +63,12 @@ exports.testTextEqual = async function (frame, elementSelector, desiredText) {
     return `Current value "${currentText}"" match baseline`
 }
 
+
+const thisWaitElementExists = async function (frame, elementSelector, timeout, healingSnapshot) {
+    let element = await findElement(frame, elementSelector, timeout, { throwError: true, isHealingByLocatorBackup: true, takeSnapshot: true }, healingSnapshot)
+    return element
+}
+
 /**
  * element exists
 *  @param {Frame} frame 
@@ -72,9 +78,7 @@ exports.testTextEqual = async function (frame, elementSelector, desiredText) {
  * @returns {ElementHandle}
  */
 exports.waitElementExists = async function (frame, elementSelector, timeout, healingSnapshot) {
-    let element = await findElement(frame, elementSelector, timeout, { throwError: true, isHealingByLocatorBackup: true, takeSnapshot: true }, healingSnapshot)
-    return element
-
+    return thisWaitElementExists(frame, elementSelector, timeout, healingSnapshot)
 }
 
 /**
@@ -408,9 +412,6 @@ exports.initialize = async function (vars, page) {
     initializeFolder(vars.dataOutDir, vars.retryCount)
     initailizeAlertHandle(vars, page)
     //initialize testcase loader and save tc ast info
-    let tcLoader = new TestcaseLoader(vars.currentFilePath)
-    await tcLoader.parseTc(false)
-    vars.tcStepInfo = tcLoader
     vars.exportVarContextToEnv()
 
     return true
@@ -450,5 +451,28 @@ exports.waitAndHandleAlert = async function (vars, timeout) {
 exports.scroll = async function (frame, elementSelector, x, y) {
     let element = await findElement(frame, elementSelector, 2000)
     await element.evaluate((node, x, y) => { node.scroll(x, y) }, x, y)
+    return true
+}
+/**
+* Verify Style attribute value
+* @param {Frame} frame The puppeteer frame object. 
+* @param {ElementSelector} element element this function will interact with. We can only have 1 element as input
+* @param {string} parameter Atributte to verify, backgroundColor, alignItems
+* @param {string} expectedValue Expected Value, rgb(3, 102, 216), normal
+* @param {HealingSnapshot} healingSnapshot healing snapshot file
+* @returns 
+*/
+exports.getStyleAttribute = async function (frame, element, parameter, expectedValue, healingSnapshot) {
+
+
+    //let elementSelected = await findElement(frame, element, 6000)
+    let elementSelected = await thisWaitElementExists(frame, element, 6000, healingSnapshot)
+
+
+    let result = await elementSelected.evaluate((node, parameter) =>
+        window.getComputedStyle(node)[parameter]
+        , parameter)
+    assert.deepStrictEqual(result, expectedValue, `Error during Get Style Attribute, In element ¨${element.displayName}¨ baseline ¨${expectedValue}¨ current value: [${result}] for parameter ¨${parameter}¨`)
+
     return true
 }

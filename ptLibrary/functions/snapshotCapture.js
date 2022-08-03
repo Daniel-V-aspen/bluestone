@@ -1,8 +1,9 @@
-const singlefileScript = require('single-file/cli/back-ends/common/scripts')
+// const singlefileScript = require('single-file/cli/back-ends/common/scripts')
 const pageCaptureConfig = require('../../config').singlefile
 const VarSaver = require('../class/VarSaver')
 const { Page } = require('puppeteer')
 const fs = require('fs').promises
+const os = require('os')
 const path = require('path')
 const getErrorStepIndexByStack = require('./getErrorStepIndexByStack')
 /**
@@ -17,8 +18,8 @@ async function initializePageCapture(page) {
         if (varSav.retryCount == 0) return
 
         //in retry mode
-        const injectedScript = await singlefileScript.get(pageCaptureConfig);
-        await page.evaluateOnNewDocument(injectedScript)
+        // const injectedScript = await singlefileScript.get(pageCaptureConfig);
+        // await page.evaluateOnNewDocument(injectedScript)
     } catch (error) {
         console.log('In retry-mode yet we cannot inject single file library to capture html')
     }
@@ -27,40 +28,36 @@ async function initializePageCapture(page) {
 }
 /**
  * capture html and save result in the designated step folder
- * @param {Page} page 
+ * @param {string} pageData
  * @returns {string} //file path
  */
-async function captureSnapshot(page) {
+async function captureSnapshot(pageData) {
     //get env variable
     try {
         let varSav = VarSaver.parseFromEnvVar()
-        let pageData = null
-        let extensionName = ''
+        let extensionName = 'png'
         if (varSav.isTakeSnapshot == false) {
             return ''
         }
-        //only run under retry mode
-        if (varSav.retryCount == 0) {
-            pageData = await page.screenshot({ type: 'png' })
-            extensionName = 'png'
-        }
-        else {
-            pageData = (await captureHtmlSnapshot(page)).content
-            extensionName = 'html'
-        }
-        //in retry mode
-
-
 
         //Based on call stack, get curret step's info
         let err = new Error()
         let stack = err.stack
-        let stepIndex = getErrorStepIndexByStack(varSav.currentFilePath, stack, varSav.tcStepInfo)
+        let filePath = path.join(os.tmpdir(), 'stepSnapshot.png')
+        try {
+            //if we are in execution mode, we will output file to desinated folder
+            let stepIndex = getErrorStepIndexByStack(varSav.currentFilePath, stack, varSav.tcStepInfo)
+            //output html 
+            let fileName = `step-${stepIndex.toString()}-${Date.now()}.${extensionName}`
+            //depends on the run sceanrio, output report in different place
+            filePath = path.join(varSav.dataOutDir, fileName)
+            await fs.writeFile(filePath, pageData)
+            varSav.ScreenshotReportManager.updateRecord(stepIndex, filePath)
+            varSav.exportVarContextToEnv()
+        } catch (error) {
+            console.log(error)
+        }
 
-        //output html 
-        let fileName = `step-${stepIndex.toString()}-${Date.now()}.${extensionName}`
-        let filePath = path.join(varSav.dataOutDir, fileName)
-        await fs.writeFile(filePath, pageData)
 
         return filePath
     } catch (error) {
@@ -75,10 +72,10 @@ async function captureSnapshot(page) {
  */
 async function captureHtmlSnapshot(page) {
     //save current html 
-    let pageData = await page.evaluate(async (DEFAULT_OPTIONS) => {
-        const pageData = await singlefile.getPageData(DEFAULT_OPTIONS);
-        return pageData;
-    }, pageCaptureConfig)
-    return pageData
+    // let pageData = await page.evaluate(async (DEFAULT_OPTIONS) => {
+    //     const pageData = await singlefile.getPageData(DEFAULT_OPTIONS);
+    //     return pageData;
+    // }, pageCaptureConfig)
+    // return pageData
 }
 module.exports = { initializePageCapture, captureSnapshot }
