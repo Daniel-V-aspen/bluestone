@@ -11,7 +11,38 @@ const fsCb = require('fs')
 const path = require('path')
 const assert = require('assert')
 const { background } = require('jimp')
+const { blue } = require('ansi-colors')
 const locator = puppeteerSupport.Locator.Operation
+/*
+WORKFLOWS Operation
+1.- Launch bluestone
+
+Main Page (Target, Operation group, Operation, Argument)
+    2.- Change Element selector
+    3.- Happy path, Choose Function and change Argument
+    4.- Change Current group update
+    5.- Change Current Operation
+
+Button add step
+    6.- Add Step without target - looks like there is no validation yet
+    7.- Add Step without operation group
+    8.- Add Step without operation
+    9.- Add Step without argument - Needs validation, can't use text equal because it autofill the argument with inner text look for a different function
+
+Button Run Step
+    10.- Happy path .- Not validation yet
+
+    //Run step without target
+    //Run step without operation group
+    //Run step without operation
+    //Run step without argument
+    //Run Step Fail
+    //Run Step pass
+
+WorkFLow
+    11.- Happy path Edit Step by in the worklow
+*/
+
 describe('Smoke Test - Operation Page', () => {
     const suite = this;
     beforeEach(async function () {
@@ -63,7 +94,7 @@ describe('Smoke Test - Operation Page', () => {
         });
     })
     it('should launch bluestone test environment', async function () {
-        this.timeout(999999)
+        this.timeout(9999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -72,13 +103,10 @@ describe('Smoke Test - Operation Page', () => {
         await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
         await new Promise(resolve => setTimeout(resolve, 500))
         await siteBackend.callBluestoneTab(happyPathPage.header)
-
-        await new Promise(resolve => setTimeout(resolve, 999999))
-
 
     })
     it('should change selector in the backend once selector value is changed in the bluestone console', async function () {
-        this.timeout(39999)
+        this.timeout(20000)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
         await siteBackend.sendOperation('click', happyPathPage.header)
@@ -87,15 +115,14 @@ describe('Smoke Test - Operation Page', () => {
         await siteBackend.sendOperation('click', happyPathPage.button_submit_form)
         await new Promise(resolve => setTimeout(resolve, 500))
         await siteBackend.callBluestoneTab(happyPathPage.header)
-        // await new Promise(resolve => setTimeout(resolve, 999999))
 
         const browser = await puppeteer.launch(puppeteerSupport.config);
         const page = await browser.newPage();
         await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
-        await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['First Dropdown'], 21467);
-        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation['First Dropdown']);
-        await bluestoneFunc.waitElementExists.func(page, puppeteerSupport.Locator.Operation['Verify Button'], 3000);
-        await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation['Verify Button']);
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        await bluestoneFunc.waitElementExists.func(page, locator.txtSelector, 21467);
+        await bluestoneFunc.change.func(page, locator.txtSelector, '5566');
+        await bluestoneFunc.keydown.func(page, 'Enter')
 
         await new Promise(resolve => setTimeout(resolve, 1500))
         let data = await bluestoneBackend.getBackendOperation()
@@ -249,7 +276,6 @@ describe('Smoke Test - Operation Page', () => {
         await new Promise(resolve => setTimeout(resolve, 500))
 
         //Maybe should be a message that there is no target, right now there is no validation
-
     })
 
     it('UI Operation Add step without operation group', async function () {
@@ -349,15 +375,7 @@ describe('Smoke Test - Operation Page', () => {
         await siteBackend.sendSpy('btnAddStep','')
     })
 
-    //Workflows Add
-    //Add step without target .- not validation
-    //Add step without operation group .- Done
-    //Add step without operation .- Done
-    //Add step without argument .- No Validation
-
-
-
-    it('UI Operation Run step happy Path', async function () {
+    it('seq-UI Operation Run step happy Path', async function () {
         this.timeout(999999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
@@ -388,37 +406,11 @@ describe('Smoke Test - Operation Page', () => {
         await new Promise(resolve => setTimeout(resolve, 500))
         await bluestoneFunc.click.func(page, puppeteerSupport.Locator.Operation.btn_Run)
         
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
+
     })
-    //Workflows Run
-    //Run step without target
-    //Run step without operation group
-    //Run step without operation
-    //Run step without argument
 
-    //Run Step Fail
-    //Run Step pass
 
-    it('UI Operation stop recording and continue recording when press cancel btn', async function () {
+    it('seq-UI Operation stop recording and continue recording when press cancel btn', async function () {
         this.timeout(999999)
         let happyPathPage = testConfig.testSite.page.happypath
         await bluestoneBackend.startRecording(siteBackend.singlePageHappyPath)
@@ -465,34 +457,7 @@ describe('Smoke Test - Operation Page', () => {
         const browser = await puppeteer.launch(puppeteerSupport.config);
         const page = await browser.newPage();
         await bluestoneFunc.goto.func(page, bluestoneBackend.operationUrl)
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-
-
-
-
-
-     
-        
+   
         await new Promise(resolve => setTimeout(resolve, 1000))
         isRecording = await bluestoneBackend.getOperationKey('isRecording')
         assert.deepEqual(isRecording, false, 'Blustone shouldnt be recording')

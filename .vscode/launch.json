@@ -29,6 +29,14 @@
       "args": ["start", "C:\\Users\\VELASQUD\\Desktop\\Git\\apm-insight-bluestone", "--port", "3601"]
     },
     {
+      "name": "Debug Mocha TC",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "args": ["test/**/spec*.js", "--grep", ".*seq-.*", "--exit"]
+    },
+    {
       "name": "Launch Command line for apm-insight-bluestone",
       "program": "${workspaceFolder}/bin/bluestone.js",
       "request": "launch",
